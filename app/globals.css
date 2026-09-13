@@ -357,18 +357,6 @@ p {
   margin-top: 18px;
   color: var(--text);
 }
-.cities {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin-top: 25px;
-}
-.cities span {
-  font-size: 10px;
-  border: 1px solid var(--border);
-  padding: 4px 12px;
-  border-radius: 99px;
-}
 .difference {
   padding-bottom: 105px;
 }

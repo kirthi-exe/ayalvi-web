@@ -58,18 +58,6 @@ export default function Home() {
           <p className="strong">
             Ayalvi is built to bring those connections closer.
           </p>
-          <div className="cities">
-            {[
-              "Zürich",
-              "Basel",
-              "Stuttgart",
-              "Frankfurt",
-              "München",
-              "Wien",
-            ].map((city) => (
-              <span key={city}>{city}</span>
-            ))}
-          </div>
         </div>
       </section>
       <section className="wrap difference">
