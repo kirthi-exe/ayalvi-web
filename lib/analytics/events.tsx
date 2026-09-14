@@ -2,6 +2,11 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 export function track(name: string, detail: Record<string, string> = {}) {
+  if (
+    window.location.pathname === "/admin" ||
+    window.location.pathname.startsWith("/admin/")
+  )
+    return;
   if (process.env.NEXT_PUBLIC_ANALYTICS_ENABLED === "true")
     window.dispatchEvent(
       new CustomEvent("ayalvi:analytics", { detail: { name, ...detail } }),
@@ -10,6 +15,7 @@ export function track(name: string, detail: Record<string, string> = {}) {
 export function Analytics() {
   const pathname = usePathname();
   useEffect(() => {
+    if (pathname === "/admin" || pathname.startsWith("/admin/")) return;
     track("page_view", {
       path: pathname.startsWith("/ref/") ? "/ref/[code]" : pathname,
     });

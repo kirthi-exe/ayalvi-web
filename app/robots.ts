@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/api/", "/ref/", "/waitlist/success"],
+      disallow: ["/admin/", "/api/", "/ref/", "/waitlist/success"],
     },
     sitemap: new URL("/sitemap.xml", siteUrl).href,
   };

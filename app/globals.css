@@ -911,3 +911,196 @@ p {
   font-size: 12px;
   min-height: 1.75em;
 }
+
+/* Internal dashboard: scoped styles, no public layout changes. */
+.admin-dashboard {
+  padding-block: 48px;
+}
+.admin-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+.admin-heading h1 {
+  margin: 0;
+  font-size: clamp(30px, 5vw, 44px);
+}
+.admin-panel {
+  min-width: 0;
+  padding: 22px;
+  margin-bottom: 24px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.admin-panel h2 {
+  font-size: 21px;
+  margin: 0 0 18px;
+}
+.admin-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+.admin-metrics .admin-panel {
+  margin-bottom: 0;
+}
+.admin-metrics strong {
+  display: block;
+  font-size: 25px;
+  margin-top: 10px;
+  overflow-wrap: anywhere;
+}
+.admin-metrics span,
+.admin-note {
+  font-size: 13px;
+}
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+  align-items: start;
+}
+.admin-grid .admin-panel {
+  margin: 0;
+}
+.admin-grid + .admin-panel {
+  margin-top: 24px;
+}
+.admin-chart {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 400px;
+  overflow: auto;
+}
+.admin-chart li {
+  padding: 0 0 12px;
+}
+.admin-chart li div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.admin-bar,
+.admin-bar span {
+  display: block;
+  height: 6px;
+  border-radius: 3px;
+}
+.admin-bar {
+  background: var(--border);
+  margin-top: 5px;
+}
+.admin-bar span {
+  background: var(--burgundy);
+}
+.admin-filters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+.admin-filters label,
+.admin-login label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+}
+.admin-filters input,
+.admin-filters select,
+.admin-login input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  margin-top: 6px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  background: var(--bg);
+  font: inherit;
+}
+.admin-actions {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.admin-table {
+  overflow: auto;
+  max-width: 100%;
+}
+.admin-table table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 13px;
+}
+.admin-table caption {
+  text-align: left;
+  margin-bottom: 12px;
+}
+.admin-table th,
+.admin-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+.admin-table th {
+  white-space: nowrap;
+}
+.admin-table td {
+  min-width: 100px;
+  overflow-wrap: anywhere;
+  max-width: 240px;
+}
+.admin-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 20px;
+  font-size: 13px;
+  flex-wrap: wrap;
+}
+.admin-login {
+  max-width: 520px;
+}
+.admin-login button {
+  margin-top: 20px;
+}
+.admin-dashboard :focus-visible,
+.admin-login :focus-visible {
+  outline: 3px solid var(--text);
+  outline-offset: 4px;
+}
+@media (max-width: 760px) {
+  .admin-filters,
+  .admin-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .admin-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .admin-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .admin-panel {
+    padding: 16px;
+  }
+  .admin-metrics strong {
+    font-size: 21px;
+  }
+}
+@media (max-width: 400px) {
+  .admin-filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

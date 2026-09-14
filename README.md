@@ -33,7 +33,7 @@ Browser → same-origin JSON POST `/api/waitlist` → streaming 4 KiB body limit
 
 New and duplicate submissions both return neutral success. Only new unique entries receive their genuine referral code; duplicates receive no code and show no referral panel. See REFERRALS.md for the observable code-presence privacy limitation. Existing rows are never updated by a repeated signup. Database failures return a generic 503 with no raw errors or submitted data. The restricted RPC handles internal reads and writes atomically. RLS is enabled with no anon/authenticated policies; all table privileges are revoked from public, anon and authenticated. After the referral migration, the service role has RPC EXECUTE only and no direct table grants; the key must stay server-only. A dedicated Supabase project limits its scope. Never use a NEXT_PUBLIC variable for a secret.
 
-The honeypot and origin check are basic abuse controls, not comprehensive bot protection. `lib/validation/abuse.ts` is the explicit future Turnstile verification point. Configure shared rate limiting at the hosting edge before a high-volume campaign; process-memory rate limits are deliberately avoided on serverless infrastructure.
+The honeypot and origin check are basic abuse controls, not comprehensive bot protection. `lib/validation/abuse.ts` is the explicit future Turnstile verification point. Configure shared rate limiting at the hosting edge before a high-volume campaign; the public signup route has no process-memory rate limit. Admin login has a documented best-effort per-instance limit; see ADMIN.md.
 
 ## Environment
 
@@ -62,6 +62,10 @@ Import this directory as a Next.js project, select Node.js 24, configure environ
 
 ## Launch prerequisites and limitations
 
-Complete professional legal review, operator disclosures, a real contact address, retention/deletion process and any required consent wording before public launch. Gender and dating interests can be sensitive information; review necessity and the appropriate legal basis. There is no live database connection until credentials and schema are configured. There is no email ownership verification, sending, unsubscribe automation, referral rewards, dashboard or mobile integration. Final logo, real screenshots, optional social links and analytics provider remain configurable. App functionality described here is pre-launch product copy.
+Complete professional legal review, operator disclosures, a real contact address, retention/deletion process and any required consent wording before public launch. Gender and dating interests can be sensitive information; review necessity and the appropriate legal basis. There is no email ownership verification, sending, unsubscribe automation, referral rewards or mobile integration. Final logo, real screenshots, optional social links and analytics provider remain configurable. App functionality described here is pre-launch product copy.
 
 Recommended next step: configure a dedicated staging Supabase project, apply the migration, verify access controls and end-to-end submissions, then finalize legal/contact content before public launch.
+
+## Internal waitlist dashboard
+
+See [ADMIN.md](ADMIN.md) for the new read-only dashboard, password/session setup, restricted RPC migration, tests and exact deployment order. The admin migration has not been applied; no deployment was performed.
