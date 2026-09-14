@@ -1,6 +1,8 @@
+import { normalizeReferralCode } from "../referrals/code";
 import { genderOptions, interestOptions } from "../constants/site";
 export type Entry = {
   email: string;
+  referral_code?: string;
   city_region: string;
   gender: string;
   interested_in: string;
@@ -26,6 +28,7 @@ export function validate(
     "is_18_plus",
     "heard_from",
     "website",
+    "referral_code",
     "utm_source",
     "utm_medium",
     "utm_campaign",
@@ -58,6 +61,13 @@ export function validate(
   if (raw.is_18_plus !== true)
     errors.is_18_plus = "You must confirm you are 18 or older.";
   const optional: Record<string, string> = {};
+  if (raw.referral_code !== undefined && raw.referral_code !== "") {
+    const code = normalizeReferralCode(raw.referral_code);
+    if (!code)
+      errors.referral_code =
+        "Please reopen your invitation link or try without it.";
+    else optional.referral_code = code;
+  }
   for (const key of [
     "heard_from",
     "utm_source",

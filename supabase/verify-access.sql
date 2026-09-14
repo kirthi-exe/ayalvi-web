@@ -20,12 +20,16 @@ from unnest(array['anon','authenticated']) role_name
 cross join unnest(array['SELECT','INSERT','UPDATE','DELETE']) privilege;
 -- Expected: all eight privilege rows are false.
 
--- The website server needs INSERT only, despite Supabase default privileges.
+-- After the referral migration, the server uses RPC only.
 select privilege,
  has_table_privilege('service_role', 'public.waitlist_entries', privilege) as allowed
 from unnest(array['SELECT','INSERT','UPDATE','DELETE']) privilege;
--- Expected: INSERT true; SELECT, UPDATE and DELETE false.
+-- Expected: all four false.
 select role_name,
  has_function_privilege(role_name, 'public.waitlist_touch_updated_at()', 'EXECUTE') as allowed
 from unnest(array['anon','authenticated']) role_name;
 -- Expected: both false. The function is for the update trigger, not a public RPC.
+
+select role_name, has_function_privilege(role_name, 'public.join_waitlist(jsonb)', 'EXECUTE') as allowed
+from unnest(array['anon','authenticated','service_role']) role_name;
+-- Expected: only service_role true.

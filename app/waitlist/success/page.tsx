@@ -1,3 +1,4 @@
+import { ReferralLink } from "@/components/referrals/link";
 import Link from "next/link";
 import type { Metadata } from "next";
 export const metadata: Metadata = {
@@ -19,11 +20,7 @@ export default function Success() {
       <Link className="button" href="/">
         Back to Ayalvi <span aria-hidden="true">↗</span>
       </Link>
-      <section hidden aria-label="Future referrals">
-        <p>
-          Want to increase your chances of earlier access? Invite your friends.
-        </p>
-      </section>
+      <ReferralLink />
     </main>
   );
 }

@@ -1,6 +1,8 @@
 # Ayalvi website
 
-Standalone pre-launch website for Tamil singles in Switzerland, Germany and Austria. No mobile repository or private dating data dependencies. Nothing has been deployed or committed.
+Internal referrals are now implemented; see [REFERRALS.md](REFERRALS.md) for the new migration, privacy tradeoff, test coverage and deployment order. Do not apply the migration or deploy until separately authorized.
+
+Standalone pre-launch website for Tamil singles in Switzerland, Germany and Austria. No mobile repository or private dating data dependencies. This referral change has not been deployed or committed.
 
 ## Local setup
 
@@ -10,7 +12,8 @@ Use Node.js 24 LTS, then `npm ci`, copy `.env.example` to `.env.local`, and run 
 
 - `app/`: App Router pages, metadata, sitemap, robots, favicon and server API.
 - `/`: responsive landing page with all eight requested sections.
-- `/waitlist/success`: confirmation, noindex, hidden future referral section.
+- `/waitlist/success`: confirmation, noindex, and a session-scoped referral link/copy panel.
+- `/ref/[code]`: identity-free invitation arrival and redirect.
 - `/privacy`, `/terms`: explicitly marked legal drafts, noindex.
 - `/community-guidelines`, `/contact`: community standards and configurable contact.
 - `components/layout/`: Header, Footer, replaceable Wordmark.
@@ -22,13 +25,13 @@ Use Node.js 24 LTS, then `npm ci`, copy `.env.example` to `.env.local`, and run 
 
 ## Database and submission
 
-Apply `supabase/migrations/202609130001_waitlist.sql` using the Supabase SQL editor or CLI to a dedicated website project (recommended). The migration has not been applied to any live database.
+The initial `supabase/migrations/202609130001_waitlist.sql` migration is already deployed to the linked project. The new `202609140001_waitlist_referrals.sql` migration is unapplied; follow REFERRALS.md for the coordinated migration and redeploy order.
 
-`waitlist_entries` contains UUID id, normalized unique email, city_region, gender, interested_in, is_18_plus, optional heard_from, nullable unique referral_code, nullable self-referencing referred_by, nonnegative referral_count, status, optional UTM fields, created_at and trigger-maintained updated_at. Status supports waiting, priority, invited, beta and blocked. Referral codes, counts and relationships are prepared only; no referral UI, attribution, rewards or email automation is active.
+`waitlist_entries` contains UUID id, normalized unique email, city_region, gender, interested_in, is_18_plus, optional heard_from, unique non-null referral_code after the referral migration, nullable self-referencing referred_by, nonnegative referral_count, status, optional UTM fields, created_at and trigger-maintained updated_at. Status supports waiting, priority, invited, beta and blocked. Referral codes and atomic attribution are implemented by the new referral migration. Rewards and email automation are not active.
 
-Browser → same-origin JSON POST `/api/waitlist` → streaming 4 KiB body limit → strict server validation and honeypot → abuse-verification extension point → server-only Supabase insert. Requests never accept status, referral fields or arbitrary extra fields. All strings are trimmed; email is lowercased and length limited to 254, city is 2–100 characters, optional text is limited to 120, enumerations are allowlisted and age confirmation must be literal true. Gender and interest include “Prefer not to say”; these website enums can be reviewed against the product vocabulary without coupling tables.
+Browser → same-origin JSON POST `/api/waitlist` → streaming 4 KiB body limit → strict server validation and honeypot → abuse-verification extension point → server-only Supabase RPC. Requests accept only an optional referring `referral_code`; they never accept status, `referred_by`, `referral_count` or arbitrary extra fields. All strings are trimmed; email is lowercased and length limited to 254, city is 2–100 characters, optional text is limited to 120, enumerations are allowlisted and age confirmation must be literal true. Gender and interest include “Prefer not to say”; these website enums can be reviewed against the product vocabulary without coupling tables.
 
-New and duplicate email submissions return the exact same `{success:true}` response. Existing rows are never updated by a repeated signup. Database failures return a generic 503 with no raw errors or submitted data. No SELECT is needed for signup. RLS is enabled with no anon/authenticated policies; all table privileges are revoked from public, anon and authenticated. The server key bypasses RLS and must stay server-only. A dedicated Supabase project limits its scope. Never use a NEXT_PUBLIC variable for a secret.
+New and duplicate submissions both return neutral success. Only new unique entries receive their genuine referral code; duplicates receive no code and show no referral panel. See REFERRALS.md for the observable code-presence privacy limitation. Existing rows are never updated by a repeated signup. Database failures return a generic 503 with no raw errors or submitted data. The restricted RPC handles internal reads and writes atomically. RLS is enabled with no anon/authenticated policies; all table privileges are revoked from public, anon and authenticated. After the referral migration, the service role has RPC EXECUTE only and no direct table grants; the key must stay server-only. A dedicated Supabase project limits its scope. Never use a NEXT_PUBLIC variable for a secret.
 
 The honeypot and origin check are basic abuse controls, not comprehensive bot protection. `lib/validation/abuse.ts` is the explicit future Turnstile verification point. Configure shared rate limiting at the hosting edge before a high-volume campaign; process-memory rate limits are deliberately avoided on serverless infrastructure.
 
@@ -51,7 +54,7 @@ Semantic sections, a skip link, visible focus styles, labels, native required va
 
 ## Validation
 
-Run `npm run lint`, `npm test`, `npm run typecheck`, and `npm run build`. (`npm lint` is not an npm script invocation; use `npm run lint`.) Run tests again after building to scan generated client assets. The bundle test verifies no secret identifier or build canary appears in browser JS. Server tests mock persistence; a staging database integration test is still required after applying the migration. Prettier is configured: run `npm run format:check` (or `npm run format` to apply formatting). Run `npm run test:e2e` for desktop/mobile browser smoke tests; the default configuration uses an installed Chrome browser. Browser signup tests mock persistence and do not create real entries.
+Run `npm run lint`, `npm test`, `npm run typecheck`, and `npm run build`. (`npm lint` is not an npm script invocation; use `npm run lint`.) Run tests again after building to scan generated client assets. The bundle test verifies no secret identifier or build canary appears in browser JS. Server tests mock persistence; a staging database integration test is still required after applying the migration. Prettier is configured: run `npm run format:check` (or `npm run format` to apply formatting). Run `npm run test:e2e` for desktop/mobile browser smoke tests; the default configuration uses an installed Chrome browser. Browser signup tests mock persistence and do not create real entries. They start an isolated production server on port 3100.
 
 ## Vercel setup — later, not deployed
 
@@ -59,6 +62,6 @@ Import this directory as a Next.js project, select Node.js 24, configure environ
 
 ## Launch prerequisites and limitations
 
-Complete professional legal review, operator disclosures, a real contact address, retention/deletion process and any required consent wording before public launch. Gender and dating interests can be sensitive information; review necessity and the appropriate legal basis. There is no live database connection until credentials and schema are configured. There is no email ownership verification, sending, unsubscribe automation, referral logic, dashboard or mobile integration. Final logo, real screenshots, optional social links and analytics provider remain configurable. App functionality described here is pre-launch product copy.
+Complete professional legal review, operator disclosures, a real contact address, retention/deletion process and any required consent wording before public launch. Gender and dating interests can be sensitive information; review necessity and the appropriate legal basis. There is no live database connection until credentials and schema are configured. There is no email ownership verification, sending, unsubscribe automation, referral rewards, dashboard or mobile integration. Final logo, real screenshots, optional social links and analytics provider remain configurable. App functionality described here is pre-launch product copy.
 
 Recommended next step: configure a dedicated staging Supabase project, apply the migration, verify access controls and end-to-end submissions, then finalize legal/contact content before public launch.

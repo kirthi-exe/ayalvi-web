@@ -10,7 +10,9 @@ export function track(name: string, detail: Record<string, string> = {}) {
 export function Analytics() {
   const pathname = usePathname();
   useEffect(() => {
-    track("page_view", { path: pathname });
+    track("page_view", {
+      path: pathname.startsWith("/ref/") ? "/ref/[code]" : pathname,
+    });
     const listener = (e: MouseEvent) => {
       const a = (e.target as Element).closest("a");
       if (a?.hash === "#early-access") track("waitlist_cta_clicked");

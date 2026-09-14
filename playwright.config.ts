@@ -3,7 +3,7 @@ export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: false,
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: "http://localhost:3100",
     launchOptions: { channel: "chrome" },
   },
   projects: [
@@ -14,9 +14,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "npm run start",
-    url: "http://localhost:3000",
-    reuseExistingServer: !process.env.CI,
+    command: "npm run start -- --port 3100",
+    url: "http://localhost:3100",
+    reuseExistingServer: false,
   },
   reporter: "list",
 });

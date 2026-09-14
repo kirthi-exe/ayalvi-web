@@ -875,3 +875,39 @@ p {
     animation: none !important;
   }
 }
+
+.referral-panel {
+  margin-top: 36px;
+  padding: 26px;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  background: var(--surface);
+  text-align: left;
+}
+.referral-panel h2 {
+  margin-top: 0;
+}
+.referral-panel label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 18px;
+}
+.referral-panel input {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--bg);
+  font-size: 13px;
+  color: var(--text);
+}
+.referral-panel .microcopy {
+  text-align: left;
+}
+.referral-panel [role="status"] {
+  font-size: 12px;
+  min-height: 1.75em;
+}

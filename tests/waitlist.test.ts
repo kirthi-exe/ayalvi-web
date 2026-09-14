@@ -51,19 +51,28 @@ describe("validation", () => {
 });
 describe("server submission", () => {
   it("accepts a valid entry", async () => {
-    vi.mocked(insertEntry).mockResolvedValue({ code: undefined });
+    vi.mocked(insertEntry).mockResolvedValue({
+      code: undefined,
+      referralCode: "ABCDEF0123",
+    });
     expect((await POST(request(valid))).status).toBe(200);
     expect(insertEntry).toHaveBeenCalledWith(
       expect.objectContaining({ email: "test@example.com" }),
     );
   });
-  it("returns identical success for duplicate email", async () => {
+  it("returns neutral success without a referral code or duplicate flag for duplicates", async () => {
     vi.mocked(insertEntry)
-      .mockResolvedValueOnce({ code: undefined })
-      .mockResolvedValueOnce({ code: "23505" });
-    expect(await (await POST(request(valid))).json()).toEqual(
-      await (await POST(request(valid))).json(),
-    );
+      .mockResolvedValueOnce({ code: undefined, referralCode: "ABCDEF0123" })
+      .mockResolvedValueOnce({ code: undefined });
+    const created = await POST(request(valid));
+    const repeated = await POST(request(valid));
+    expect(created.status).toBe(200);
+    expect(repeated.status).toBe(200);
+    expect(await created.json()).toEqual({
+      success: true,
+      referralCode: "ABCDEF0123",
+    });
+    expect(await repeated.json()).toEqual({ success: true });
   });
   it("never exposes raw database errors", async () => {
     vi.mocked(insertEntry).mockRejectedValue(

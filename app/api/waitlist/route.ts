@@ -48,13 +48,13 @@ export async function POST(request: Request) {
       );
     if (!(await verifyAbuseProtection(request)))
       return reply({ message: "Please try again later." }, 400);
-    const { code } = await insertEntry(result.data);
-    if (code && code !== "23505")
+    const { code, referralCode } = await insertEntry(result.data);
+    if (code)
       return reply(
         { message: "We couldn’t save your signup. Please try again shortly." },
         503,
       );
-    return reply({ success: true });
+    return reply({ success: true, ...(referralCode ? { referralCode } : {}) });
   } catch {
     return reply(
       { message: "We couldn’t save your signup. Please try again shortly." },

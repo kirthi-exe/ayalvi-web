@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { genderOptions, interestOptions } from "@/lib/constants/site";
+import { incomingReferral, completeReferral } from "@/lib/referrals/storage";
 import { getUtm, track } from "@/lib/analytics/events";
 export function WaitlistForm() {
   const router = useRouter();
@@ -17,6 +18,7 @@ export function WaitlistForm() {
     setPending(true);
     setErrors({});
     setMessage("");
+    const referralCode = incomingReferral();
     const values = Object.fromEntries(new FormData(e.currentTarget));
     try {
       const response = await fetch("/api/waitlist", {
@@ -26,6 +28,7 @@ export function WaitlistForm() {
           ...values,
           is_18_plus: values.is_18_plus === "on",
           ...getUtm(),
+          ...(referralCode ? { referral_code: referralCode } : {}),
         }),
       });
       const result = await response.json();
@@ -39,7 +42,9 @@ export function WaitlistForm() {
         );
         return;
       }
+      completeReferral(result.referralCode);
       track("waitlist_completed");
+      if (referralCode) track("referral_signup_completed");
       router.push("/waitlist/success");
     } catch {
       setMessage(
