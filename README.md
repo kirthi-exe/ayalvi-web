@@ -73,3 +73,7 @@ See [ADMIN.md](ADMIN.md) for the new read-only dashboard, password/session setup
 ## Waitlist confirmation email
 
 See [EMAIL.md](EMAIL.md) for the server-only Resend integration, required sender/key configuration, safe failure behavior, testing and deployment order. Confirmation sending is limited to genuinely new signups; no database migration is needed.
+
+## Internal invite preparation
+
+See [INVITES.md](INVITES.md) for admin status transitions, page-limited bulk actions, sorting, the new restricted migration and deployment order. Invitation status changes do not send email and do not depend on Resend configuration.

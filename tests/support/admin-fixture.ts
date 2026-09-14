@@ -17,6 +17,9 @@ export const adminFixture: DashboardData = {
   pagination: { page: 1, page_size: 25, total: 1, pages: 1 },
   recent: [
     {
+      entry_key: "00000000-0000-4000-8000-000000000001",
+      invited_at: null,
+      beta_at: null,
       masked_email: "te***@example.test",
       created_at: "2026-09-14T09:00:00Z",
       city_region: "Zürich",

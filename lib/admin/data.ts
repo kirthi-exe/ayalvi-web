@@ -4,6 +4,9 @@ import { requireAdmin } from "./auth";
 import { parseFilters, type SearchParams } from "./filters";
 export type Breakdown = { label: string; count: number };
 export type RecentEntry = {
+  entry_key: string;
+  invited_at: string | null;
+  beta_at: string | null;
   masked_email: string;
   created_at: string;
   city_region: string;

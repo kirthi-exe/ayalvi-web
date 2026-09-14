@@ -1,5 +1,6 @@
+vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
 import { render, screen, within } from "@testing-library/react";
-import { it, expect } from "vitest";
+import { it, expect, vi } from "vitest";
 import { Dashboard } from "@/components/admin/dashboard";
 import { adminFixture } from "./support/admin-fixture";
 it("renders masked tables, referral stats and accessible filters", () => {

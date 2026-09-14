@@ -13,7 +13,7 @@ export default async function WaitlistAdmin({
     <main id="main" className="wrap admin-dashboard">
       <header className="admin-heading">
         <div>
-          <p className="eyebrow">Internal · Read only</p>
+          <p className="eyebrow">Internal · Invite preparation</p>
           <h1>Waitlist overview</h1>
         </div>
         <form method="post" action="/admin/logout">

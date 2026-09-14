@@ -1104,3 +1104,38 @@ p {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+.admin-status {
+  display: inline-block;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-weight: 600;
+}
+.admin-row-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 150px;
+}
+.admin-row-actions .button {
+  padding: 8px 12px;
+  white-space: nowrap;
+}
+.admin-bulk {
+  margin: 16px 0;
+}
+.admin-bulk label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.admin-bulk input,
+.admin-table input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--burgundy);
+}
+.admin-metrics + .admin-metrics {
+  margin-top: 16px;
+}

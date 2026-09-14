@@ -6,7 +6,15 @@ export const statuses = [
   "beta",
   "blocked",
 ] as const;
+export const sortOptions = {
+  newest: "Newest",
+  oldest: "Oldest",
+  referrals: "Most referrals",
+  status: "Status",
+  city: "City / region",
+} as const;
 export type AdminFilters = {
+  sort?: keyof typeof sortOptions;
   status?: string;
   city_region?: string;
   gender?: string;
@@ -27,6 +35,7 @@ export function parseFilters(query: SearchParams): AdminFilters | null {
     "date_from",
     "date_to",
     "page",
+    "sort",
   ];
   if (
     Object.keys(query).some((key) => !allowed.includes(key)) ||
@@ -47,6 +56,11 @@ export function parseFilters(query: SearchParams): AdminFilters | null {
       if (!(options as readonly string[]).includes(value)) return null;
       Object.assign(filters, { [key]: value });
     }
+  }
+  const sort = get("sort");
+  if (sort) {
+    if (!Object.keys(sortOptions).includes(sort)) return null;
+    filters.sort = sort as keyof typeof sortOptions;
   }
   const city = get("city_region");
   if (city) {

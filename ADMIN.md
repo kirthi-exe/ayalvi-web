@@ -1,3 +1,7 @@
+# Current status workflow
+
+The dashboard now includes restricted status management and invite preparation. See [INVITES.md](INVITES.md) for the current mutation contract, opaque row identifiers, timestamps and deployment order. The read-only architecture below describes the original dashboard baseline.
+
 # Internal waitlist dashboard
 
 `/admin/login` → `/admin/waitlist`. These routes are unlinked from public navigation and the sitemap, noindex, and dynamically rendered with private/no-store responses. Login and logout use POST `/admin/session` and `/admin/logout`. There is no public admin data API or server action.

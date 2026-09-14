@@ -21,7 +21,7 @@ test("admin rejects unauthenticated HTML and RSC requests", async ({
 });
 test("admin signs in, shows masked dashboard without overflow and signs out", async ({
   page,
-}) => {
+}, testInfo) => {
   const loginPage = await page.goto("/admin/login");
   expect(loginPage?.headers()["referrer-policy"]).toBe("same-origin");
   expect(loginPage?.headers()["cache-control"]).toContain("no-store");
@@ -62,6 +62,25 @@ test("admin signs in, shows masked dashboard without overflow and signs out", as
   expect(session?.httpOnly).toBe(true);
   expect(session?.secure).toBe(true);
   expect(session?.sameSite).toBe("Strict");
+  if (testInfo.project.name === "desktop") {
+    const table = page.getByRole("region", { name: "Recent signups table" });
+    await page.getByLabel("Select all visible rows").check();
+    await page.getByRole("button", { name: "Bulk Mark Priority" }).click();
+    await expect(table.locator(".admin-status")).toHaveText("priority");
+    await expect(
+      page.getByRole("region", { name: "Status counts" }).getByText("priority"),
+    ).toBeVisible();
+    await table.getByRole("button", { name: "Invite", exact: true }).click();
+    await expect(table.locator(".admin-status")).toHaveText("invited");
+    page.once("dialog", (dialog) => dialog.dismiss());
+    await table.getByRole("button", { name: "Block", exact: true }).click();
+    await expect(table.locator(".admin-status")).toHaveText("invited");
+    page.once("dialog", (dialog) => dialog.accept());
+    await table.getByRole("button", { name: "Block", exact: true }).click();
+    await expect(table.locator(".admin-status")).toHaveText("blocked");
+    await table.getByRole("button", { name: "Restore to Waiting" }).click();
+    await expect(table.locator(".admin-status")).toHaveText("waiting");
+  }
   await page.getByRole("button", { name: "Sign out" }).click();
   await expect(page).toHaveURL(/\/admin\/login$/);
   await page.goto("/admin/waitlist");

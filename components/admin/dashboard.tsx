@@ -1,6 +1,12 @@
+import { EntryControls } from "./entry-controls";
 import Link from "next/link";
 import type { Breakdown, DashboardData } from "@/lib/admin/data";
-import { pageLink, statuses, type AdminFilters } from "@/lib/admin/filters";
+import {
+  pageLink,
+  statuses,
+  sortOptions,
+  type AdminFilters,
+} from "@/lib/admin/filters";
 import { genderOptions, interestOptions } from "@/lib/constants/site";
 const date = (value: string) =>
   new Intl.DateTimeFormat("en-GB", {
@@ -78,6 +84,16 @@ export function Filters({ filters }: { filters: AdminFilters }) {
         Through (UTC)
         <input type="date" name="date_to" defaultValue={filters.date_to} />
       </label>
+      <label>
+        Sort by
+        <select name="sort" defaultValue={filters.sort || "newest"}>
+          {Object.entries(sortOptions).map(([value, label]) => (
+            <option value={value} key={value}>
+              {label}
+            </option>
+          ))}
+        </select>
+      </label>
       <div className="admin-actions">
         <button className="button primary" type="submit">
           Apply filters
@@ -124,6 +140,14 @@ export function Dashboard({
                 ? value.toLocaleString("en-GB")
                 : value}
             </strong>
+          </div>
+        ))}
+      </section>
+      <section className="admin-metrics" aria-label="Status counts">
+        {data.breakdowns.status.map((item) => (
+          <div className="admin-panel" key={item.label}>
+            <span>{item.label}</span>
+            <strong>{item.count}</strong>
           </div>
         ))}
       </section>
@@ -190,54 +214,7 @@ export function Dashboard({
       </section>
       <section className="admin-panel">
         <h2>Recent signups</h2>
-        {data.recent.length ? (
-          <div
-            className="admin-table"
-            tabIndex={0}
-            role="region"
-            aria-label="Recent signups table"
-          >
-            <table>
-              <caption>Most recent first. Emails are always masked.</caption>
-              <thead>
-                <tr>
-                  {[
-                    "Created (UTC)",
-                    "Email",
-                    "City / region",
-                    "Gender",
-                    "Interested in",
-                    "Status",
-                    "Referrals",
-                    "Referred",
-                    "Heard from",
-                  ].map((label) => (
-                    <th scope="col" key={label}>
-                      {label}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {data.recent.map((row, index) => (
-                  <tr key={index}>
-                    <td>{date(row.created_at)}</td>
-                    <td>{row.masked_email}</td>
-                    <td>{row.city_region}</td>
-                    <td>{row.gender}</td>
-                    <td>{row.interested_in}</td>
-                    <td>{row.status}</td>
-                    <td>{row.referral_count}</td>
-                    <td>{row.referred ? "Yes" : "No"}</td>
-                    <td>{row.heard_from || "—"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <p>No signups match these filters.</p>
-        )}
+        <EntryControls key={JSON.stringify(filters)} rows={data.recent} />
         <nav className="admin-pagination" aria-label="Signup pages">
           {p.page > 1 ? (
             <Link href={pageLink(filters, p.page - 1)}>Previous</Link>

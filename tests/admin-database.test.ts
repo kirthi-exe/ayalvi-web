@@ -21,6 +21,7 @@ beforeAll(async () => {
     "202609130001_waitlist.sql",
     "202609140001_waitlist_referrals.sql",
     "202609140002_waitlist_admin.sql",
+    "202609140003_waitlist_invites.sql",
   ])
     await db.exec(readFileSync(`supabase/migrations/${file}`, "utf8"));
   await db.exec(`insert into public.waitlist_entries(email,city_region,gender,interested_in,is_18_plus,referral_code,referral_count,status,created_at)
