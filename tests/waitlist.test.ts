@@ -1,5 +1,10 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach } from "vitest";
+vi.mock("next/server", () => ({ after: vi.fn() }));
+vi.mock("@/lib/email/confirmation", () => ({
+  sendWaitlistConfirmation: vi.fn(),
+  reportEmailFailure: vi.fn(),
+}));
 import { validate } from "@/lib/validation/waitlist";
 vi.mock("@/lib/supabase/waitlist", () => ({ insertEntry: vi.fn() }));
 import { insertEntry } from "@/lib/supabase/waitlist";

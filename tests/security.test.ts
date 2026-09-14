@@ -13,14 +13,14 @@ it("guards database code with server-only and no public secret variable", () => 
   );
   for (const path of [...files("components"), ...files("lib/analytics")])
     expect(readFileSync(path, "utf8")).not.toMatch(
-      /SUPABASE_SECRET_KEY|ADMIN_DASHBOARD_PASSWORD|service_role/,
+      /SUPABASE_SECRET_KEY|ADMIN_DASHBOARD_PASSWORD|RESEND_API_KEY|service_role/,
     );
 });
 it("contains no server secret in production client assets when built", () => {
   if (!existsSync(".next/static")) return;
   for (const path of files(".next/static").filter((p) => p.endsWith(".js")))
     expect(readFileSync(path, "utf8")).not.toMatch(
-      /SUPABASE_SECRET_KEY|ADMIN_DASHBOARD_PASSWORD|AYALVI_BUILD_SECRET_CANARY|ayalvi-e2e-server-only-canary|E2E-only-admin-password/,
+      /SUPABASE_SECRET_KEY|ADMIN_DASHBOARD_PASSWORD|RESEND_API_KEY|AYALVI_BUILD_SECRET_CANARY|ayalvi-e2e-server-only-canary|E2E-only-admin-password/,
     );
 });
 
@@ -40,4 +40,13 @@ it("keeps admin credentials and data access server-only with no logging", () => 
   expect(readFileSync("components/layout/site.tsx", "utf8")).not.toContain(
     "/admin",
   );
+});
+
+it("email SDK and templates stay behind the server-only boundary", () => {
+  for (const file of files("lib/email"))
+    expect(readFileSync(file, "utf8")).toMatch(/import ["']server-only["']/);
+  for (const file of files("components"))
+    expect(readFileSync(file, "utf8")).not.toMatch(
+      /lib\/email|from ["']resend["']/,
+    );
 });

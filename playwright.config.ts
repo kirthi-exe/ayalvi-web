@@ -24,6 +24,8 @@ export default defineConfig({
       command: "npm run start -- --port 3100",
       env: {
         ADMIN_DASHBOARD_PASSWORD: adminTestPassword,
+        RESEND_API_KEY: "",
+        WAITLIST_FROM_EMAIL: "",
         SUPABASE_URL: "http://127.0.0.1:3101",
         SUPABASE_SECRET_KEY: "ayalvi-e2e-server-only-canary",
       },

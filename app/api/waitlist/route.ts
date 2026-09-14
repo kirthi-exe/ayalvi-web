@@ -1,3 +1,8 @@
+import { after } from "next/server";
+import {
+  sendWaitlistConfirmation,
+  reportEmailFailure,
+} from "@/lib/email/confirmation";
 import { insertEntry } from "@/lib/supabase/waitlist";
 import { validate } from "@/lib/validation/waitlist";
 import { verifyAbuseProtection } from "@/lib/validation/abuse";
@@ -54,6 +59,14 @@ export async function POST(request: Request) {
         { message: "We couldn’t save your signup. Please try again shortly." },
         503,
       );
+    if (referralCode) {
+      try {
+        // Next keeps this server task alive after the neutral response is sent.
+        after(() => sendWaitlistConfirmation(result.data.email, referralCode));
+      } catch {
+        reportEmailFailure();
+      }
+    }
     return reply({ success: true, ...(referralCode ? { referralCode } : {}) });
   } catch {
     return reply(

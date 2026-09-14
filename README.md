@@ -27,7 +27,7 @@ Use Node.js 24 LTS, then `npm ci`, copy `.env.example` to `.env.local`, and run 
 
 The initial `supabase/migrations/202609130001_waitlist.sql` migration is already deployed to the linked project. The new `202609140001_waitlist_referrals.sql` migration is unapplied; follow REFERRALS.md for the coordinated migration and redeploy order.
 
-`waitlist_entries` contains UUID id, normalized unique email, city_region, gender, interested_in, is_18_plus, optional heard_from, unique non-null referral_code after the referral migration, nullable self-referencing referred_by, nonnegative referral_count, status, optional UTM fields, created_at and trigger-maintained updated_at. Status supports waiting, priority, invited, beta and blocked. Referral codes and atomic attribution are implemented by the new referral migration. Rewards and email automation are not active.
+`waitlist_entries` contains UUID id, normalized unique email, city_region, gender, interested_in, is_18_plus, optional heard_from, unique non-null referral_code after the referral migration, nullable self-referencing referred_by, nonnegative referral_count, status, optional UTM fields, created_at and trigger-maintained updated_at. Status supports waiting, priority, invited, beta and blocked. Referral codes and atomic attribution are implemented by the new referral migration. Rewards are not active. New-signup confirmation emails are available when Resend is configured; see EMAIL.md.
 
 Browser → same-origin JSON POST `/api/waitlist` → streaming 4 KiB body limit → strict server validation and honeypot → abuse-verification extension point → server-only Supabase RPC. Requests accept only an optional referring `referral_code`; they never accept status, `referred_by`, `referral_count` or arbitrary extra fields. All strings are trimmed; email is lowercased and length limited to 254, city is 2–100 characters, optional text is limited to 120, enumerations are allowlisted and age confirmation must be literal true. Gender and interest include “Prefer not to say”; these website enums can be reviewed against the product vocabulary without coupling tables.
 
@@ -62,10 +62,14 @@ Import this directory as a Next.js project, select Node.js 24, configure environ
 
 ## Launch prerequisites and limitations
 
-Complete professional legal review, operator disclosures, a real contact address, retention/deletion process and any required consent wording before public launch. Gender and dating interests can be sensitive information; review necessity and the appropriate legal basis. There is no email ownership verification, sending, unsubscribe automation, referral rewards or mobile integration. Final logo, real screenshots, optional social links and analytics provider remain configurable. App functionality described here is pre-launch product copy.
+Complete professional legal review, operator disclosures, a real contact address, retention/deletion process and any required consent wording before public launch. Gender and dating interests can be sensitive information; review necessity and the appropriate legal basis. There is no email ownership verification, unsubscribe automation, referral rewards or mobile integration. Final logo, real screenshots, optional social links and analytics provider remain configurable. App functionality described here is pre-launch product copy.
 
 Recommended next step: configure a dedicated staging Supabase project, apply the migration, verify access controls and end-to-end submissions, then finalize legal/contact content before public launch.
 
 ## Internal waitlist dashboard
 
 See [ADMIN.md](ADMIN.md) for the new read-only dashboard, password/session setup, restricted RPC migration, tests and exact deployment order. The admin migration has not been applied; no deployment was performed.
+
+## Waitlist confirmation email
+
+See [EMAIL.md](EMAIL.md) for the server-only Resend integration, required sender/key configuration, safe failure behavior, testing and deployment order. Confirmation sending is limited to genuinely new signups; no database migration is needed.
