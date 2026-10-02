@@ -25,6 +25,8 @@ export default defineConfig({
       env: {
         ADMIN_DASHBOARD_PASSWORD: adminTestPassword,
         RESEND_API_KEY: "",
+        REVIEW_SUPABASE_URL: "http://127.0.0.1:3101",
+        REVIEW_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_fixture_only",
         WAITLIST_FROM_EMAIL: "",
         SUPABASE_URL: "http://127.0.0.1:3101",
         SUPABASE_SECRET_KEY: "ayalvi-e2e-server-only-canary",

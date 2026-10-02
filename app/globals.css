@@ -1139,3 +1139,136 @@ p {
 .admin-metrics + .admin-metrics {
   margin-top: 16px;
 }
+
+/* Private reviewer console; native media avoids public optimization caches. */
+.reviewer-wrap {
+  max-width: 1440px;
+  padding-block: 24px 48px;
+}
+.reviewer-wrap > nav,
+.reviewer-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+.reviewer-wrap > nav {
+  margin-bottom: 24px;
+  font-size: 13px;
+}
+.reviewer-heading h1 {
+  font-size: 36px;
+}
+.reviewer-heading p,
+.reviewer-notice {
+  font-size: 13px;
+}
+.reviewer-notice {
+  min-height: 32px;
+  padding-block: 8px;
+}
+.reviewer-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.reviewer-grid .admin-panel {
+  margin-bottom: 16px;
+}
+.reviewer-grid h2 {
+  font-size: 18px;
+}
+.reviewer-active-photo,
+.reviewer-video video {
+  width: 100%;
+  height: clamp(280px, 35vh, 420px);
+  object-fit: contain;
+  background: #eee6e1;
+  border-radius: 8px;
+}
+.reviewer-video video {
+  display: block;
+  margin-bottom: 12px;
+}
+.reviewer-photo-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-block: 6px;
+}
+.reviewer-photo-nav button {
+  padding: 4px 20px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.reviewer-thumbnails {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px;
+}
+.reviewer-thumbnails button {
+  flex: 0 0 48px;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.reviewer-thumbnails button[aria-pressed="true"] {
+  border-color: var(--burgundy);
+}
+.reviewer-thumbnails img {
+  width: 48px;
+  height: 56px;
+  object-fit: cover;
+}
+.reviewer-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  font-size: 14px;
+  padding: 16px 22px;
+}
+.reviewer-actions {
+  display: flex;
+  gap: 14px;
+  margin-block: 12px;
+}
+.reviewer-dialog {
+  margin: auto;
+  padding: 28px;
+  width: min(480px, 90vw);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--text);
+}
+.reviewer-dialog::backdrop {
+  background: #1e1b1c99;
+}
+.reviewer-dialog h2 {
+  font-size: 26px;
+  margin-bottom: 20px;
+}
+.reviewer-dialog label {
+  display: block;
+}
+.reviewer-dialog select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 6px;
+}
+.reviewer-console .secondary {
+  background: var(--surface);
+  color: var(--burgundy);
+  border: 1px solid var(--burgundy);
+}
+@media (max-width: 800px) {
+  .reviewer-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .reviewer-heading h1 {
+    font-size: 28px;
+  }
+}

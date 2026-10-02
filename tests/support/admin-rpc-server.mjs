@@ -1,8 +1,10 @@
+import { reviewerFixture } from "./reviewer-fixture.mjs";
 // Loopback-only synthetic RPCs for browser regression tests. No remote project.
 import { createServer } from "node:http";
 import { adminFixture } from "./admin-fixture.ts";
 const fixture = structuredClone(adminFixture);
 createServer(async (req, res) => {
+  if (await reviewerFixture(req, res)) return;
   if (req.url === "/health") {
     res.writeHead(200);
     res.end("ok");

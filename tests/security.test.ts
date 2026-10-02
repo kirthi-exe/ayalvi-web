@@ -50,3 +50,20 @@ it("email SDK and templates stay behind the server-only boundary", () => {
       /lib\/email|from ["']resend["']/,
     );
 });
+
+it("reviewer code never persists URLs, exposes server credentials or bypasses the Edge Function", () => {
+  for (const path of files("lib/reviewer"))
+    expect(readFileSync(path, "utf8")).not.toMatch(
+      /SUPABASE_SECRET_KEY|service_role|\b(?:client|supabase)\.from\(|\.rpc\(|console\.|localStorage|sessionStorage/,
+    );
+  for (const path of files("components/reviewer"))
+    expect(readFileSync(path, "utf8")).not.toMatch(
+      /localStorage|sessionStorage|console\.|analytics|SUPABASE|createClient/,
+    );
+  expect(readFileSync("app/admin/verifications/page.tsx", "utf8")).toContain(
+    "reviewerAccess",
+  );
+  expect(
+    readFileSync("app/admin/verifications/page.tsx", "utf8"),
+  ).not.toContain("signed_url");
+});
