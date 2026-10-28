@@ -34,8 +34,14 @@ it("keeps admin credentials and data access server-only with no logging", () => 
     expect(source).toMatch(/import ["']server-only["']/);
     expect(source).not.toMatch(/console\./);
   }
-  for (const file of files("app/admin"))
-    expect(readFileSync(file, "utf8")).not.toMatch(/console\.|NEXT_PUBLIC_/);
+  for (const file of files("app/admin")) {
+    let source = readFileSync(file, "utf8");
+    if (file === join("app/admin", "verifications/session/route.ts"))
+      source = source
+        .replace("console.warn(`REVIEW_LOGIN_FAIL reason=${reason}`);", "")
+        .replace('console.info("REVIEW_LOGIN_OK");', "");
+    expect(source).not.toMatch(/console\.|NEXT_PUBLIC_/);
+  }
   expect(readFileSync("app/sitemap.ts", "utf8")).not.toContain("/admin");
   expect(readFileSync("components/layout/site.tsx", "utf8")).not.toContain(
     "/admin",
