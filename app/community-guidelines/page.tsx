@@ -39,7 +39,7 @@ export default function Guidelines() {
       <h2>Speak up and set boundaries</h2>
       <p>
         The Ayalvi app includes report and block functionality; these tools will
-        be available in the app, not on this pre-launch website. Serious
+        be available in the app, not on this website before launch. Serious
         violations may lead to account removal.
       </p>
       <Link href="/contact">Contact Ayalvi →</Link>

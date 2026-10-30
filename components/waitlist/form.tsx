@@ -115,7 +115,9 @@ export function WaitlistForm() {
                 Select an option
               </option>
               {(options as readonly string[]).map((o) => (
-                <option key={o}>{o}</option>
+                <option key={o} value={o}>
+                  {o === "Non-binary" ? "Nonbinary" : o}
+                </option>
               ))}
             </select>
             {error(name as string)}

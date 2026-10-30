@@ -51,7 +51,7 @@ export function validate(
     city_region.length > 100 ||
     /[\x00-\x1f]/.test(city_region)
   )
-    errors.city_region = "Enter a city or region (2–100 characters).";
+    errors.city_region = "Enter a city or region using 2 to 100 characters.";
   const gender = str("gender"),
     interested_in = str("interested_in");
   if (!(genderOptions as readonly string[]).includes(gender))

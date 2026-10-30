@@ -50,9 +50,9 @@ export default function Home() {
         <div>
           <p>
             Our community is spread across cities in Switzerland, Germany and
-            Austria. Meeting someone naturally — whether for dating or
-            friendship — can be difficult, and general apps rarely understand
-            the importance of shared culture, language and roots.
+            Austria. Meeting someone naturally can be difficult, whether you are
+            looking for dating or friendship. General apps rarely understand the
+            importance of shared culture, language and roots.
           </p>
           <p className="strong">
             Ayalvi is built to bring those connections closer.
@@ -63,12 +63,11 @@ export default function Home() {
         <div className="section-heading">
           <span className="eyebrow">A DIFFERENT KIND OF CONNECTION</span>
           <h2>
-            Tamil-first. <em>Open to connection.</em>
+            Tamil at heart. <em>Open to connection.</em>
           </h2>
         </div>
         <p className="connection-intro">
-          Choose Dating, Friends, or Both. Modern, not matrimonial — on your
-          terms.
+          Choose Dating, Friends, or Both. Modern connections on your terms.
         </p>
         <div className="cards connection-cards">
           <article
@@ -111,7 +110,7 @@ export default function Home() {
         <div className="connection-privacy" aria-labelledby="privacy-title">
           <h3 id="privacy-title">More than photos. Private in both.</h3>
           <p>
-            Profiles are photo-free before a mutual connection. Private photos
+            Profiles show no photos before a mutual connection. Private photos
             unlock only after a mutual Dating match or Friends connection.
           </p>
           <p>
@@ -140,7 +139,7 @@ export default function Home() {
             </p>
             <p>
               Ayalvi creates a space where those shared roots can naturally be
-              part of who you connect with — without telling you what that
+              part of who you connect with, without telling you what that
               connection should become.
             </p>
           </div>

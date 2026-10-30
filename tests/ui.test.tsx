@@ -22,7 +22,7 @@ it("explains distinct Dating and Friends contexts with shared privacy", () => {
   expect(
     screen.getByText(/Choose Dating, Friends, or Both. Modern/),
   ).toBeVisible();
-  expect(screen.getByText(/Profiles are photo-free/)).toHaveTextContent(
+  expect(screen.getByText(/Profiles show no photos/)).toHaveTextContent(
     /mutual Dating match or Friends connection/,
   );
   expect(screen.getByText(/a short live video/)).toHaveTextContent(

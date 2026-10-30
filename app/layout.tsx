@@ -11,20 +11,20 @@ import { siteUrl, description } from "@/lib/constants/site";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Ayalvi – Tamil Dating & Friendship",
+    default: "Ayalvi: Tamil Dating & Friendship",
     template: "%s | Ayalvi",
   },
   description,
   openGraph: {
     type: "website",
     siteName: "Ayalvi",
-    title: "Ayalvi – Tamil Dating & Friendship",
+    title: "Ayalvi: Tamil Dating & Friendship",
     description,
     locale: "en_GB",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Ayalvi – Tamil Dating & Friendship",
+    title: "Ayalvi: Tamil Dating & Friendship",
     description,
   },
 };
