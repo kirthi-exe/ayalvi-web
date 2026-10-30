@@ -1,12 +1,62 @@
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 import { it, expect, vi } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  within,
+} from "@testing-library/react";
+import { Header, Footer } from "@/components/layout/site";
 import Home from "@/app/page";
 import { WaitlistForm } from "@/components/waitlist/form";
+it("explains distinct Dating and Friends contexts with shared privacy", () => {
+  render(<Home />);
+  const dating = screen.getByRole("article", { name: "Dating" });
+  const friends = screen.getByRole("article", { name: "Friends" });
+  expect(dating).toHaveClass("connection-dating");
+  expect(friends).toHaveClass("connection-friends");
+  expect(dating).toHaveTextContent(/Like.*match/);
+  expect(friends).toHaveTextContent(/Connect.*connection/);
+  expect(friends).not.toHaveTextContent(/match/i);
+  expect(
+    screen.getByText(/Choose Dating, Friends, or Both. Modern/),
+  ).toBeVisible();
+  expect(screen.getByText(/Profiles are photo-free/)).toHaveTextContent(
+    /mutual Dating match or Friends connection/,
+  );
+  expect(screen.getByText(/a short live video/)).toHaveTextContent(
+    /manually reviewed/,
+  );
+  expect(document.body.textContent).not.toMatch(
+    /identity verified|age verified|biometric|AI face matching/i,
+  );
+});
+it("preserves the wordmark and keeps admin routes out of public navigation", () => {
+  render(
+    <>
+      <Header />
+      <Footer />
+    </>,
+  );
+  const logos = screen.getAllByLabelText("Ayalvi", { selector: "span" });
+  expect(logos).toHaveLength(2);
+  for (const logo of logos) {
+    expect(logo).toHaveClass("wordmark");
+    expect(logo.textContent).toBe("AYALVI.");
+    expect(logo.querySelector(".wordmark-dot")).toHaveTextContent(".");
+  }
+  const nav = screen.getByRole("navigation", { name: "Main navigation" });
+  expect(
+    within(nav).getByRole("link", { name: "How it works" }),
+  ).toHaveAttribute("href", "/#how-it-works");
+  for (const link of screen.getAllByRole("link"))
+    expect(link.getAttribute("href")).not.toMatch(/^\/admin/);
+});
 it("renders core content and the mobile hero CTA", () => {
   render(<Home />);
   expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
-    "Tamil connections.Modern dating.Shared roots.",
+    /Meaningful Tamil.*connections.*start here/,
   );
   const cta = screen.getByRole("link", { name: /Join Early Access/ });
   expect(cta).toHaveAttribute("href", "#early-access");
@@ -21,7 +71,7 @@ it("provides accessible labels and feedback", () => {
     "Email address",
     "City / Region",
     "Gender",
-    "Interested in",
+    "Dating preference",
     "I confirm that I am 18 or older.",
   ])
     expect(screen.getByLabelText(label)).toBeInTheDocument();

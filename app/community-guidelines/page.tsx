@@ -7,8 +7,9 @@ export default function Guidelines() {
       <span className="eyebrow">AYALVI / OUR COMMUNITY</span>
       <h1>Connection starts with respect.</h1>
       <p>
-        We want Ayalvi to be a welcoming space for Tamil singles to meet on
-        their own terms. These standards guide the community we are building.
+        We want Ayalvi to be a welcoming space for Tamil adults to meet for
+        dating or friendship on their own terms. These standards guide the
+        community we are building.
       </p>
       <h2>Adults only</h2>
       <p>

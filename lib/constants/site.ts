@@ -13,4 +13,4 @@ export const interestOptions = [
   "Prefer not to say",
 ] as const;
 export const description =
-  "Meet Tamil singles across Switzerland, Germany and Austria with Ayalvi — modern dating built around shared roots, culture and genuine connection.";
+  "Modern Tamil dating and genuine friendship across Switzerland, Germany and Austria. Meet people through shared interests and culture, with private photos.";

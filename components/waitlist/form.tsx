@@ -106,7 +106,7 @@ export function WaitlistForm() {
       <div className="form-grid">
         {[
           ["gender", "Gender", genderOptions],
-          ["interested_in", "Interested in", interestOptions],
+          ["interested_in", "Dating preference", interestOptions],
         ].map(([name, label, options]) => (
           <div key={name as string}>
             <label htmlFor={name as string}>{label}</label>

@@ -30,9 +30,9 @@ export default function Privacy() {
       </p>
       <h2>Separate from the app</h2>
       <p>
-        This website’s waitlist is separate from mobile dating profiles,
-        matches, conversations, reports, blocks and push tokens. It does not
-        access those records.
+        This website’s waitlist is separate from mobile Dating and Friends
+        profiles, matches, connections, conversations, reports, blocks and push
+        tokens. It does not access those records.
       </p>
       <h2>Hosting and storage</h2>
       <p>

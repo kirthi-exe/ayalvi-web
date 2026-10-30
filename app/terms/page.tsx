@@ -14,14 +14,15 @@ export default function Terms() {
       <h2>Who can join</h2>
       <p>
         Ayalvi Early Access is for adults aged 18 or older. Our initial focus is
-        Tamil singles across Switzerland, Germany and Austria. Submit accurate
-        information and an email address you control.
+        Tamil adults seeking dating or friendship across Switzerland, Germany
+        and Austria. Submit accurate information and an email address you
+        control.
       </p>
       <h2>What joining means</h2>
       <p>
-        A waitlist signup expresses interest in Ayalvi. It does not create a
-        dating profile or guarantee an invitation, a release date or a
-        particular feature. Testing availability may vary by region.
+        A waitlist signup expresses interest in Ayalvi. It does not create an
+        app profile or guarantee an invitation, a release date or a particular
+        feature. Testing availability may vary by region.
       </p>
       <h2>Updates</h2>
       <p>

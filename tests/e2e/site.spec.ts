@@ -1,10 +1,89 @@
 import { test, expect } from "@playwright/test";
+test("connection contexts fit desktop, tablet and narrow mobile", async ({
+  page,
+}, testInfo) => {
+  test.skip(
+    testInfo.project.name !== "desktop",
+    "This test exercises its own six viewport sizes.",
+  );
+  for (const width of [1440, 820, 440, 412, 390, 375]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(
+      "Meaningful Tamil",
+    );
+    const dating = page.getByRole("article", { name: "Dating", exact: true });
+    const friends = page.getByRole("article", { name: "Friends", exact: true });
+    await expect(dating).toBeVisible();
+    await expect(friends).toBeVisible();
+    const colors = await page
+      .locator(".connection-cards h3")
+      .evaluateAll((nodes) => nodes.map((n) => getComputedStyle(n).color));
+    expect(colors[0]).not.toBe(colors[1]);
+    const overflow = await page
+      .locator("body *")
+      .evaluateAll((nodes) =>
+        nodes
+          .filter((n) => n.getBoundingClientRect().right > innerWidth + 1)
+          .map((n) => n.tagName + "." + n.className),
+      );
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+      `Overflow at ${width}px: ${overflow.join(", ")}`,
+    ).toBe(true);
+    const a = await dating.boundingBox(),
+      b = await friends.boundingBox();
+    if (width <= 440) expect(b!.y).toBeGreaterThan(a!.y + a!.height);
+    else expect(b!.y).toBe(a!.y);
+    if (width <= 440) {
+      const note = page.locator(".preview-note");
+      await expect(note).toBeVisible();
+      const noteBox = await note.boundingBox();
+      const phoneBox = await page.locator(".phone").boundingBox();
+      expect(noteBox!.y + noteBox!.height).toBeLessThan(phoneBox!.y);
+      await expect(page.locator(".preview-tag")).toBeVisible();
+      const badgeOnTop = await page.locator(".preview-tag").evaluate((el) => {
+        const box = el.getBoundingClientRect();
+        return el.contains(
+          document.elementFromPoint(
+            box.x + box.width / 2,
+            box.y + box.height / 2,
+          ),
+        );
+      });
+      // Scroll the badge into view before checking its stacking at its center.
+      if (!badgeOnTop) {
+        await page.locator(".preview-tag").scrollIntoViewIfNeeded();
+        expect(
+          await page.locator(".preview-tag").evaluate((el) => {
+            const box = el.getBoundingClientRect();
+            return el.contains(
+              document.elementFromPoint(
+                box.x + box.width / 2,
+                box.y + box.height / 2,
+              ),
+            );
+          }),
+        ).toBe(true);
+      }
+      await page
+        .locator(".hero")
+        .screenshot({ path: `test-results/hero-${width}.png` });
+    }
+    await page.screenshot({
+      path: `test-results/connections-${width}.png`,
+      fullPage: true,
+    });
+  }
+});
 test("landing works at the target viewport", async ({ page }, testInfo) => {
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toContainText(
-    "Tamil connections.",
+    "Meaningful Tamil",
   );
   const cta = page.getByRole("link", { name: "Join Early Access" }).last();
   if (testInfo.project.name === "mobile") {
@@ -25,7 +104,9 @@ test("landing works at the target viewport", async ({ page }, testInfo) => {
   await page.getByLabel("Email address").fill("test@example.com");
   await page.getByLabel("City / Region").fill("Zürich");
   await page.getByLabel("Gender", { exact: true }).selectOption("Woman");
-  await page.getByLabel("Interested in", { exact: true }).selectOption("Men");
+  await page
+    .getByLabel("Dating preference", { exact: true })
+    .selectOption("Men");
   await page.getByLabel("I confirm that I am 18 or older.").check();
   await page.route("**/api/waitlist", (route) =>
     route.fulfill({
@@ -66,7 +147,9 @@ test("referral arrival, UTM preservation, signup and copying work", async ({
   await page.getByLabel("Email address").fill("referral-ui@example.com");
   await page.getByLabel("City / Region").fill("Zürich");
   await page.getByLabel("Gender", { exact: true }).selectOption("Woman");
-  await page.getByLabel("Interested in", { exact: true }).selectOption("Men");
+  await page
+    .getByLabel("Dating preference", { exact: true })
+    .selectOption("Men");
   await page.getByLabel("I confirm that I am 18 or older.").check();
   let received: Record<string, unknown> = {};
   await page.route("**/api/waitlist", (route) => {
@@ -107,7 +190,7 @@ test("unknown and malformed referral URLs show ordinary signup without identity"
     await expect(page).toHaveURL(/\/#early-access$/);
     await expect(page.getByRole("form")).toBeVisible();
     await expect(page.getByRole("heading", { level: 1 })).toContainText(
-      "Tamil connections.",
+      "Meaningful Tamil",
     );
   }
 });
@@ -130,7 +213,9 @@ test("neutral success without a code clears an old link and hides the referral p
   await page.getByLabel("Email address").fill(" DUPLICATE@example.com ");
   await page.getByLabel("City / Region").fill("Zürich");
   await page.getByLabel("Gender", { exact: true }).selectOption("Woman");
-  await page.getByLabel("Interested in", { exact: true }).selectOption("Men");
+  await page
+    .getByLabel("Dating preference", { exact: true })
+    .selectOption("Men");
   await page.getByLabel("I confirm that I am 18 or older.").check();
   await page.route("**/api/waitlist", (route) =>
     route.fulfill({

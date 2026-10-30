@@ -398,6 +398,53 @@ p {
   font-size: 13px;
   margin-top: 13px;
 }
+.difference {
+  --dating-accent: var(--burgundy);
+  --dating-tint: #f4eae5;
+  --friends-accent: #233d58;
+  --friends-tint: #eaf0f5;
+}
+.connection-intro {
+  text-align: center;
+  margin: -20px 0 28px;
+  font-size: 14px;
+}
+.cards.connection-cards {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.connection-dating {
+  --connection-accent: var(--dating-accent);
+  --connection-tint: var(--dating-tint);
+}
+.connection-friends {
+  --connection-accent: var(--friends-accent);
+  --connection-tint: var(--friends-tint);
+}
+.connection-cards .card-icon {
+  color: var(--connection-accent);
+  background: var(--connection-tint);
+  margin-bottom: 18px;
+}
+.connection-cards h3 {
+  color: var(--connection-accent);
+}
+.connection-privacy {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  max-width: 800px;
+  margin-inline: auto;
+  text-align: center;
+}
+.connection-privacy p {
+  margin-top: 12px;
+  font-size: 13px;
+}
+@media (max-width: 700px) {
+  .cards.connection-cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 .shared {
   background: var(--dark);
   color: var(--bg);
@@ -680,6 +727,10 @@ p {
     transform: scale(0.88);
     transform-origin: center;
   }
+  .preview-pattern {
+    /* Leave room for the rotated decoration at narrow viewport widths. */
+    max-width: 90%;
+  }
   .preview-tag {
     left: -15px;
   }
@@ -748,13 +799,15 @@ p {
     padding: 13px 24px;
   }
   .preview {
-    height: 480px;
+    height: 540px;
+    flex-direction: column;
+    gap: 20px;
     transform: scale(0.85);
     margin: -8px -20px -22px;
   }
   .preview-note {
-    right: 25px;
-    top: 0;
+    position: static;
+    transform: none;
   }
   .preview-tag {
     left: 16px;

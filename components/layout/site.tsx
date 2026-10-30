@@ -36,7 +36,7 @@ export function Footer() {
         <Link href="/">
           <Wordmark />
         </Link>
-        <p>Tamil connections. Modern dating. Shared roots.</p>
+        <p>Tamil connections. Dating, friendship, shared roots.</p>
       </div>
       <div className="footer-links">
         <Link href="/privacy">Privacy</Link>
