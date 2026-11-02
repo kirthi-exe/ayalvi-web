@@ -1,5 +1,11 @@
 import { StrictMode } from "react";
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  act,
+  waitFor,
+} from "@testing-library/react";
 import { beforeEach, afterEach, it, expect, vi } from "vitest";
 import { ReviewerConsole } from "@/components/reviewer/console";
 const id = "00000000-0000-4000-8000-000000000001",
@@ -203,7 +209,168 @@ it("network failures show a neutral message without losing the current item", as
   await ready();
   vi.mocked(fetch).mockRejectedValueOnce(new Error("private-url-token"));
   fireEvent.keyDown(document.body, { key: "a" });
-  await screen.findByText("Could not load or save this review. Try again.");
+  await screen.findByText("Could not save this review. Try again.");
   expect(screen.getByText("Anu")).toBeVisible();
   expect(document.body.textContent).not.toContain("private-url-token");
 });
+
+const requests = () =>
+  vi
+    .mocked(fetch)
+    .mock.calls.map(([, init]) => JSON.parse(init!.body as string));
+
+function finalize(action: "approve" | "reject") {
+  fireEvent.click(
+    screen.getByRole("button", {
+      name: action === "approve" ? "Approve" : "Reject",
+    }),
+  );
+  if (action === "reject") {
+    fireEvent.change(screen.getByLabelText("Reason"), {
+      target: { value: "video_unclear" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Confirm rejection" }));
+  }
+}
+
+it.each(["approve", "reject"] as const)(
+  "%s clears the finalized review, refreshes the count and loads the next pending review",
+  async (action) => {
+    await ready();
+    vi.mocked(fetch).mockClear();
+    finalize(action);
+    await screen.findByText("Bala");
+    expect(screen.queryByText("Anu")).not.toBeInTheDocument();
+    expect(screen.getByText("1 pending")).toBeVisible();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent(
+      action === "approve" ? "Review approved." : "Review rejected.",
+    );
+    expect(requests()).toEqual([
+      expect.objectContaining({ action, submission_id: id }),
+      { action: "list" },
+      { action: "get", submission_id: id2 },
+    ]);
+  },
+);
+
+it.each(["approve", "reject"] as const)(
+  "%s of the last review shows a clean empty state",
+  async (action) => {
+    queue = [make()];
+    await ready();
+    finalize(action);
+    await screen.findByText("No pending reviews");
+    expect(screen.getByText("0 pending")).toBeVisible();
+    expect(screen.queryByText("Anu")).not.toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(document.querySelector("video")).toBeNull();
+  },
+);
+
+it.each(["approve", "reject"] as const)(
+  "%s stays successful when queue refresh fails and Refresh never re-finalizes",
+  async (action) => {
+    await ready();
+    const normalFetch = vi.mocked(fetch).getMockImplementation()!;
+    vi.mocked(fetch)
+      .mockImplementationOnce(normalFetch)
+      .mockRejectedValueOnce(new Error("private-load-detail"));
+    finalize(action);
+    await screen.findByText("Could not load reviews. Refresh to try again.");
+    expect(screen.getByRole("status")).toHaveTextContent(
+      action === "approve" ? "Review approved." : "Review rejected.",
+    );
+    expect(screen.queryByText("Anu")).not.toBeInTheDocument();
+    expect(screen.queryByText("2 pending")).not.toBeInTheDocument();
+    expect(screen.getByText("Pending count unavailable")).toBeVisible();
+    expect(
+      screen.queryByRole("button", { name: "Approve" }),
+    ).not.toBeInTheDocument();
+    fireEvent.keyDown(document.body, { key: "a" });
+    fireEvent.click(screen.getByRole("button", { name: "Refresh" }));
+    await screen.findByText("Bala");
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(screen.getByText("1 pending")).toBeVisible();
+    expect(
+      requests().filter((request) => request.action === action),
+    ).toHaveLength(1);
+  },
+);
+
+it("a next-review load failure cannot be reported as a save failure or already reviewed decision", async () => {
+  await ready();
+  const normalFetch = vi.mocked(fetch).getMockImplementation()!;
+  vi.mocked(fetch)
+    .mockImplementationOnce(normalFetch)
+    .mockImplementationOnce(normalFetch)
+    .mockResolvedValueOnce(new Response(null, { status: 503 }));
+  finalize("approve");
+  await screen.findByText("Could not load reviews. Refresh to try again.");
+  expect(screen.getByRole("status")).toHaveTextContent("Review approved.");
+  expect(screen.queryByText("Anu")).not.toBeInTheDocument();
+  expect(
+    requests().filter((request) => request.action === "approve"),
+  ).toHaveLength(1);
+});
+
+it("skips a pending candidate that disappears before get without treating it as a save failure", async () => {
+  await ready();
+  const normalFetch = vi.mocked(fetch).getMockImplementation()!;
+  vi.mocked(fetch)
+    .mockImplementationOnce(normalFetch)
+    .mockImplementationOnce(normalFetch)
+    .mockResolvedValueOnce(new Response(null, { status: 404 }));
+  finalize("approve");
+  await screen.findByText("No pending reviews");
+  expect(screen.getByText("0 pending")).toBeVisible();
+  expect(screen.getByRole("status")).toHaveTextContent("Review approved.");
+  expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+});
+
+it("initial load failure displays a load error and successful Refresh clears it", async () => {
+  vi.mocked(fetch).mockRejectedValueOnce(new Error("private-load-detail"));
+  render(<ReviewerConsole />);
+  await screen.findByText("Could not load reviews. Refresh to try again.");
+  fireEvent.click(screen.getByRole("button", { name: "Refresh" }));
+  await screen.findByText("Anu");
+  expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  expect(screen.getByText("2 pending")).toBeVisible();
+});
+
+it("real save failure preserves the review and count, and a successful retry clears the error", async () => {
+  await ready();
+  vi.mocked(fetch).mockResolvedValueOnce(new Response(null, { status: 503 }));
+  finalize("approve");
+  await screen.findByText("Could not save this review. Try again.");
+  expect(screen.getByText("Anu")).toBeVisible();
+  expect(screen.getByText("2 pending")).toBeVisible();
+  await waitFor(() =>
+    expect(screen.getByRole("button", { name: "Approve" })).toBeEnabled(),
+  );
+  finalize("approve");
+  await screen.findByText("Bala");
+  expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  expect(screen.getByText("1 pending")).toBeVisible();
+});
+
+it.each(["approve", "reject"] as const)(
+  "%s reconciles a server error after commit without repeating finalization",
+  async (action) => {
+    await ready();
+    vi.mocked(fetch)
+      .mockImplementationOnce(async () => {
+        queue.shift();
+        return new Response(null, { status: 503 });
+      })
+      .mockResolvedValueOnce(new Response(null, { status: 409 }));
+    finalize(action);
+    await screen.findByText("Bala");
+    expect(screen.getByText("1 pending")).toBeVisible();
+    expect(screen.queryByText("Anu")).not.toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(
+      requests().filter((request) => request.action === action),
+    ).toHaveLength(1);
+  },
+);

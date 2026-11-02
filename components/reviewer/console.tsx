@@ -31,6 +31,7 @@ export function ReviewerConsole() {
     [photo, setPhoto] = useState(0),
     [busy, setBusy] = useState(true),
     [notice, setNotice] = useState(""),
+    [error, setError] = useState(""),
     [denied, setDenied] = useState(false),
     [expired, setExpired] = useState(false),
     [rejecting, setRejecting] = useState(false),
@@ -56,19 +57,24 @@ export function ReviewerConsole() {
     setExpired(false);
   }, []);
   const failure = useCallback(
-    (error: unknown) => {
+    (error: unknown, operation: "load" | "save") => {
       if (
         error instanceof RequestFailure &&
         (error.status === 401 || error.status === 403)
       ) {
         clear();
         setDenied(true);
-        setNotice(
+        setError(
           error.status === 401
             ? "Your session expired. Sign in again."
             : "Reviewer access is no longer available.",
         );
-      } else setNotice("Could not load or save this review. Try again.");
+      } else
+        setError(
+          operation === "save"
+            ? "Could not save this review. Try again."
+            : "Could not load reviews. Refresh to try again.",
+        );
     },
     [clear],
   );
@@ -76,17 +82,21 @@ export function ReviewerConsole() {
     async (excluded: string[] = [], preferred?: string | null) => {
       const version = ++generation.current;
       clear();
+      currentId.current = null;
+      setCount(null);
+      setMore(false);
+      setError("");
       setExpired(false);
       const list = await request<{
         reviews: ReviewSummary[];
         more_possible: boolean;
       }>({ action: "list" });
       if (!alive.current || version !== generation.current) return;
-      setCount(list.reviews.length);
-      setMore(list.more_possible);
       const candidates = list.reviews.filter(
         (item) => !excluded.includes(item.submission_id),
       );
+      setCount(candidates.length);
+      setMore(list.more_possible);
       if (preferred) {
         const index = candidates.findIndex(
           (item) => item.submission_id === preferred,
@@ -112,10 +122,14 @@ export function ReviewerConsole() {
             ![404, 409].includes(error.status)
           )
             throw error;
+          if (!alive.current || version !== generation.current) return;
+          setCount((count) => (count === null ? null : Math.max(0, count - 1)));
         }
       }
-      if (candidates.length)
-        setNotice("The queue changed. Refresh to continue.");
+      if (candidates.length > 3)
+        setNotice(
+          (notice) => notice || "The queue changed. Refresh to continue.",
+        );
     },
     [clear, show],
   );
@@ -127,7 +141,7 @@ export function ReviewerConsole() {
     try {
       await load([], currentId.current);
     } catch (error) {
-      failure(error);
+      failure(error, "load");
     } finally {
       lock.current = false;
       if (alive.current) setBusy(false);
@@ -143,7 +157,7 @@ export function ReviewerConsole() {
       try {
         await load();
       } catch (error) {
-        failure(error);
+        failure(error, "load");
       } finally {
         lock.current = false;
         if (alive.current) setBusy(false);
@@ -211,32 +225,56 @@ export function ReviewerConsole() {
       setRejecting(false);
       setReason("");
       setNotice("");
+      setError("");
       try {
-        await request(
-          action === "approve"
-            ? { action, submission_id: item.submission_id }
-            : {
-                action,
-                submission_id: item.submission_id,
-                reason_code: chosen!,
-              },
-        );
-        setNotice(
-          action === "approve" ? "Review approved." : "Review rejected.",
-        );
-        await load([item.submission_id]);
-      } catch (error) {
-        if (
-          error instanceof RequestFailure &&
-          [404, 409].includes(error.status)
-        ) {
-          setNotice("This item was already reviewed. Moving to the next.");
-          try {
-            await load([item.submission_id]);
-          } catch (nextError) {
-            failure(nextError);
+        try {
+          await request(
+            action === "approve"
+              ? { action, submission_id: item.submission_id }
+              : {
+                  action,
+                  submission_id: item.submission_id,
+                  reason_code: chosen!,
+                },
+          );
+          setNotice(
+            action === "approve" ? "Review approved." : "Review rejected.",
+          );
+        } catch (error) {
+          if (
+            error instanceof RequestFailure &&
+            [404, 409].includes(error.status)
+          ) {
+            setNotice("This item was already reviewed. Moving to the next.");
+          } else {
+            // A lost response or server error can follow a committed decision.
+            // Reconcile with a read only; never repeat the finalization request.
+            let noLongerPending = false;
+            if (!(error instanceof RequestFailure) || error.status >= 500) {
+              try {
+                await request<Review>({
+                  action: "get",
+                  submission_id: item.submission_id,
+                });
+              } catch (checkError) {
+                noLongerPending =
+                  checkError instanceof RequestFailure &&
+                  [404, 409].includes(checkError.status);
+              }
+            }
+            if (!noLongerPending) {
+              failure(error, "save");
+              return;
+            }
+            setNotice("This review is no longer pending. Moving to the next.");
           }
-        } else failure(error);
+        }
+        // Finalization is complete. A queue/media failure cannot undo the save.
+        try {
+          await load([item.submission_id]);
+        } catch (error) {
+          failure(error, "load");
+        }
       } finally {
         lock.current = false;
         if (alive.current) setBusy(false);
@@ -308,7 +346,9 @@ export function ReviewerConsole() {
           <h1>Profile verification</h1>
           <p>
             {count === null
-              ? "Loading queue…"
+              ? busy
+                ? "Loading queue…"
+                : "Pending count unavailable"
               : `${count} pending${more ? " loaded · more may be available" : ""}`}
           </p>
         </div>
@@ -323,6 +363,7 @@ export function ReviewerConsole() {
       <p role="status" aria-live="polite" className="reviewer-notice">
         {notice}
       </p>
+      {error && <p role="alert">{error}</p>}
       {denied ? (
         <a href="/admin/verifications/login">Sign in again</a>
       ) : review ? (
